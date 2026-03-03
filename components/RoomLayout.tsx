@@ -825,7 +825,7 @@ export default function RoomLayout({
           className="mx-auto flex h-full w-full max-w-6xl items-end justify-center"
           style={{ paddingBottom: floorDockOffset }}
         >
-          <div className="w-full max-w-[920px] origin-bottom scale-[0.5] sm:scale-[0.57] md:scale-[0.64] lg:scale-[0.71] xl:scale-[0.78]">
+          <div className="w-full max-w-[920px] origin-bottom scale-[0.67] sm:scale-[0.72] md:scale-[0.77] lg:scale-[0.82] xl:scale-[0.86]">
             {children}
           </div>
         </div>

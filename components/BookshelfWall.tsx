@@ -255,7 +255,7 @@ export function BookshelfWall({
                               key={b.id}
                               type="button"
                               onClick={() => onSelectBook?.(b)}
-                              className="group relative flex-shrink-0"
+                              className="group relative shrink-0"
                               layout
                               layoutId={`book-${b.id}`}
                               initial={false}
@@ -324,19 +324,6 @@ export function BookshelfWall({
                                         background: "rgba(255,255,255,0.30)",
                                       }}
                                     />
-                                    <div className="absolute inset-0 flex items-center justify-center overflow-hidden px-1">
-                                      <div
-                                        className="max-h-full overflow-hidden"
-                                        style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-                                      >
-                                        <p className="text-[11px] font-semibold leading-tight text-neutral-800">
-                                          {b.title}
-                                        </p>
-                                        <p className="mt-1.5 text-[9px] text-neutral-700/60">
-                                          {b.author}
-                                        </p>
-                                      </div>
-                                    </div>
                                   </div>
 
                                   {/* Cover */}
@@ -362,6 +349,27 @@ export function BookshelfWall({
                                     </div>
                                   </div>
                                 </motion.div>
+
+                                {/* Keep text out of the 3D subtree for crisper rasterization on Windows */}
+                                <div
+                                  className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden px-1"
+                                  style={{
+                                    opacity: isSelected ? 0 : 1,
+                                    transition: "opacity 140ms ease",
+                                  }}
+                                >
+                                  <div
+                                    className="max-h-full overflow-hidden"
+                                    style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+                                  >
+                                    <p className="text-[12px] font-semibold leading-tight text-neutral-800">
+                                      {b.title}
+                                    </p>
+                                    <p className="mt-1.5 text-[10px] text-neutral-700/75">
+                                      {b.author}
+                                    </p>
+                                  </div>
+                                </div>
                               </div>
                             </motion.button>
                           );
