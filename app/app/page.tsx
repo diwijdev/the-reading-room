@@ -45,10 +45,8 @@ useEffect(() => {
       return;
     }
 
-    const name =
-      (data.user.user_metadata as any)?.display_name ||
-      data.user.email ||
-      "Reader";
+    const metadata = data.user.user_metadata as { display_name?: string } | undefined;
+    const name = metadata?.display_name || data.user.email || "Reader";
 
     setDisplayName(name);
     setLoading(false);

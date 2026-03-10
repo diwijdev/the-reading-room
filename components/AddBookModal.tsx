@@ -52,8 +52,9 @@ export function AddBookModal({
     try {
       await onAdd({ title: title.trim(), author: author.trim(), genre_id: genreId, status });
       onClose();
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to add book.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to add book.";
+      setError(message);
     } finally {
       setLoading(false);
     }

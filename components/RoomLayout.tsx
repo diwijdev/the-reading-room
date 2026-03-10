@@ -47,7 +47,27 @@ const MIDNIGHT = {
   gridAccent: "rgba(255,207,107,.055)",
 } as const;
 
-type Tokens = typeof WARM;
+type Tokens = {
+  wallTop: string;
+  wallMid: string;
+  wallLow: string;
+  floor: string;
+  floorD: string;
+  base: string;
+  baseL: string;
+  wood: string;
+  woodL: string;
+  woodD: string;
+  wglow: string;
+  spot: string;
+  vignette: string;
+  cat: string;
+  leaf: string;
+  pot: string;
+  rug1: string;
+  rug2: string;
+  gridAccent: string;
+};
 
 /* --- Shared types --- */
 
@@ -125,7 +145,7 @@ function useDraggablePaintings(header: ReactNode, viewport: ViewportSize, floorI
     [getBounds],
   );
 
-  const onDragStart = useCallback((key: PaintingKey) => {
+  const onDragStart = useCallback(() => {
     // Snapshot starting positions so drag math is based on initial click point.
     dragStartRef.current = paintings;
     setPaintings((prev) => clampAll(prev));
@@ -141,7 +161,10 @@ function useDraggablePaintings(header: ReactNode, viewport: ViewportSize, floorI
 
   useEffect(() => {
     // Re-clamp when viewport/floor changes (resize/theme/header changes).
-    setPaintings((prev) => clampAll(prev));
+    const id = window.requestAnimationFrame(() => {
+      setPaintings((prev) => clampAll(prev));
+    });
+    return () => window.cancelAnimationFrame(id);
   }, [clampAll]);
 
   return { paintings, onDragStart, onDragMove };
@@ -581,7 +604,7 @@ export default function RoomLayout({
             drag
             dragMomentum={false}
             dragElastic={0}
-            onDragStart={() => onDragStart(key)}
+            onDragStart={onDragStart}
             onDrag={(_, info) => onDragMove(key, info.offset.x, info.offset.y)}
             onDragEnd={(_, info) => onDragMove(key, info.offset.x, info.offset.y)}
             className="pointer-events-auto absolute cursor-grab active:cursor-grabbing"

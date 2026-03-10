@@ -65,8 +65,9 @@ export default function LoginPage() {
 
         router.replace("/app");
       }
-    } catch (err: any) {
-      setMessage(err?.message ?? "Something went wrong.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong.";
+      setMessage(message);
     } finally {
       setLoading(false);
     }

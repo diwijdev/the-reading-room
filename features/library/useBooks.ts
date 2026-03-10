@@ -34,6 +34,8 @@ export function useBooks() {
   }, []);
 
   useEffect(() => {
+    // Initial load on mount. This effect intentionally triggers the async fetch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchBooks();
   }, [fetchBooks]);
 
