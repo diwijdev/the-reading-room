@@ -297,7 +297,7 @@ function SceneWindow({ isWarm, t, prefersReduced }: { isWarm: boolean; t: Tokens
           className="pointer-events-none absolute"
           style={{
             top: "100%", left: "50%", transform: "translateX(-50%)",
-            width: 365, height: "300%", zIndex: -1,
+            width: 280, height: "300%", zIndex: -1,
             clipPath: "polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%)",
             opacity: 0.12,
           }}
@@ -438,10 +438,16 @@ function SceneLamp({
 }: {
   isWarm: boolean; t: Tokens; prefersReduced: boolean | null; floorInsetFromBottom: string;
 }) {
-  const shadeColor = isWarm ? "#716a63ff" : t.woodL;
+  const shadeColor = isWarm ? "#775f35ff" : "#eca64aff";
   const glowBg = isWarm
     ? "radial-gradient(ellipse, rgba(255,200,80,.22) 0%, transparent 72%)"
     : "radial-gradient(ellipse, rgba(173,180,47,0.45) 0%, transparent 72%)";
+  const standPoleBg = isWarm
+    ? "linear-gradient(90deg, #d6b285 0%, #b67f4d 50%, #7d5330 100%)"
+    : "linear-gradient(90deg, #8e6a4b 0%, #6f4f37 50%, #4f3728 100%)";
+  const standBaseBg = isWarm
+    ? "linear-gradient(180deg, #c8a178 0%, #7d5330 100%)"
+    : "linear-gradient(180deg, #7c5c43 0%, #4f3728 100%)";
 
   return (
     <div
@@ -450,11 +456,15 @@ function SceneLamp({
     >
       <div className="relative mx-auto h-[56px] w-[72px]">
         <div
-          className="absolute left-1/2 top-0 z-[2] h-0 w-0 -translate-x-1/2 border-l-[36px] border-r-[36px] border-l-transparent border-r-transparent"
-          style={{ borderBottom: `56px solid ${shadeColor}`, filter: "drop-shadow(0 3px 8px rgba(0,0,0,.35))" }}
+          className="absolute left-1/2 top-0 z-[2] h-[56px] w-[72px] -translate-x-1/2"
+          style={{
+            background: shadeColor,
+            clipPath: "polygon(34% 0%, 64% 0%, 100% 100%, 0% 100%)",
+            filter: "drop-shadow(0 3px 8px rgba(0,0,0,.35))",
+          }}
         />
         <motion.div
-          className="absolute left-1/2 bottom-[-72px] z-[0] h-[150px] w-[210px] -translate-x-1/2"
+          className="absolute left-1/2 bottom-[-52px] z-[0] h-[150px] w-[210px] -translate-x-1/2"
           style={{ background: glowBg }}
           animate={prefersReduced ? undefined : { opacity: [0.82, 1], scale: [1, 1.05] }}
           transition={prefersReduced ? undefined : { duration: 3, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
@@ -462,11 +472,11 @@ function SceneLamp({
       </div>
       <div
         className="relative z-[2] mx-auto h-[148px] w-[8px] shadow-[1px_0_4px_rgba(0,0,0,.3)]"
-        style={{ background: `linear-gradient(90deg, ${t.woodL} 0%, ${t.wood} 50%, ${t.woodD} 100%)` }}
+        style={{ background: standPoleBg }}
       />
       <div
         className="relative z-[2] mx-auto h-[12px] w-[36px] shadow-[0_2px_6px_rgba(0,0,0,.4)]"
-        style={{ background: `linear-gradient(180deg, ${t.woodL} 0%, ${t.woodD} 100%)`, borderRadius: "50% 50% 3px 3px / 60% 60% 3px 3px" }}
+        style={{ background: standBaseBg, borderRadius: "50% 50% 3px 3px / 60% 60% 3px 3px" }}
       />
     </div>
   );
@@ -588,9 +598,9 @@ export default function RoomLayout({
           <motion.div
             key={i}
             className="absolute z-[2] rounded-full"
-            style={{ left: p.left, top: p.top, width: 2, height: 2, background: t.spot, mixBlendMode: "screen" }}
+            style={{ left: p.left, top: p.top, width: 2.6, height: 2.6, background: t.spot, mixBlendMode: "screen" }}
             initial={{ opacity: 0, x: 0, y: 0 }}
-            animate={prefersReduced ? { opacity: 0.15 } : { opacity: [0, 0.45, 0.18, 0], x: [0, p.tx], y: [0, p.ty] }}
+            animate={prefersReduced ? { opacity: 0.24 } : { opacity: [0.05, 0.7, 0.32, 0], x: [0, p.tx], y: [0, p.ty] }}
             transition={prefersReduced ? undefined : { duration: p.dur, delay: p.del, repeat: Infinity, ease: "easeInOut" }}
           />
         ))}
