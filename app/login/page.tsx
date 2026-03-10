@@ -96,7 +96,7 @@ export default function LoginPage() {
               </p>
               <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
                 A modern bookshelf for your books,
-                <span className="text-amber-200"> lit with calm</span>.
+                <span className="text-amber-200"> with a Vibe</span>.
               </h1>
               <p className="mt-3 max-w-xl text-sm text-neutral-300">
                 Track what you’re reading, organize by genre, and write reviews in your
@@ -184,7 +184,7 @@ export default function LoginPage() {
                       className="w-full rounded-xl border border-neutral-700 bg-neutral-950/40 px-3 py-2 outline-none focus:border-neutral-400"
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
-                      placeholder="Diwij / Emi"
+                      placeholder="Your name"
                       autoComplete="nickname"
                     />
                   </div>
@@ -217,7 +217,7 @@ export default function LoginPage() {
                     minLength={6}
                   />
                   <p className="mt-1 text-xs text-neutral-400">
-                    Use 6+ characters (we can improve rules later).
+                    Use 6+ characters.
                   </p>
                 </div>
 
