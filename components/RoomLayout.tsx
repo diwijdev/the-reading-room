@@ -685,7 +685,7 @@ export default function RoomLayout({
           className="absolute left-1/2 z-1 w-full max-w-6xl -translate-x-1/2"
           style={{ bottom: floorInsetFromBottom }}
         >
-          <div className="mx-auto w-full max-w-[920px] origin-bottom scale-[0.66] sm:scale-[0.67] md:scale-[0.69] lg:scale-[0.73] xl:scale-[0.80]">
+          <div className="mx-auto w-full max-w-[920px]" style={{ zoom: 0.80 }}>
             {children}
           </div>
         </div>
