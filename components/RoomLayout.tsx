@@ -83,7 +83,7 @@ const PAINTING_SIZES: Record<PaintingKey, { width: number; height: number }> = {
 const DEFAULT_VIEWPORT: ViewportSize = { width: 1280, height: 800 };
 const FLOOR_MIN_PCT = 8;
 const FLOOR_VH = 5;
-const FLOOR_MAX_PCT = 14;
+const FLOOR_MAX_PCT = 10;
 
 function clampNum(n: number, min: number, max: number) {
   return Math.max(min, Math.min(n, max));
@@ -521,7 +521,6 @@ export default function RoomLayout({
   const floorInsetFromBottom = `clamp(${FLOOR_MIN_PCT}%, ${FLOOR_VH}vh, ${FLOOR_MAX_PCT}%)`;
   const floorStart = `calc(100% - ${floorInsetFromBottom})`;
   const wallLowStop = `calc(${floorStart} - 1%)`;
-  const floorDockOffset = `calc(${floorInsetFromBottom} - 70px)`;
   const contentTopPadding = header ? "calc(56px + 0.75rem)" : "0.75rem";
 
   const { paintings, onDragStart, onDragMove } = useDraggablePaintings(header, viewport, floorInsetPx);
@@ -679,14 +678,14 @@ export default function RoomLayout({
 
       {/* Content */}
       <div
-        className="relative z-[10] h-screen overflow-hidden px-4 pb-4"
+        className="relative z-1 h-screen overflow-hidden px-4 pb-4"
         style={{ paddingTop: contentTopPadding }}
       >
         <div
-          className="mx-auto flex h-full w-full max-w-6xl items-end justify-center"
-          style={{ paddingBottom: floorDockOffset }}
+          className="absolute left-1/2 z-1 w-full max-w-6xl -translate-x-1/2"
+          style={{ bottom: floorInsetFromBottom }}
         >
-          <div className="w-full max-w-[920px] origin-bottom scale-[0.67] sm:scale-[0.69] md:scale-[0.73] lg:scale-[0.78] xl:scale-[0.82]">
+          <div className="mx-auto w-full max-w-[920px] origin-bottom scale-[0.66] sm:scale-[0.67] md:scale-[0.69] lg:scale-[0.73] xl:scale-[0.80]">
             {children}
           </div>
         </div>
