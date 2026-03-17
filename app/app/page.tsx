@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useBooks } from "@/features/library/useBooks";
 import { useGenres } from "@/features/library/useGenres";
+import { GENRES_PER_BOOKSHELF } from "@/features/library/constants";
 import { AddBookModal } from "@/components/AddBookModal";
 import { EditBookModal } from "@/components/EditBookModal";
 import { BookshelfWall } from "@/components/BookshelfWall";
@@ -17,10 +18,13 @@ export default function AppHome() {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [genreModalOpen, setGenreModalOpen] = useState(false);
   const [actionToast, setActionToast] = useState<string | null>(null);
   const [removingBookId, setRemovingBookId] = useState<string | null>(null);
+  const [genrePage, setGenrePage] = useState(0);
   const [theme, setTheme] = useState<RoomTheme>("warm");
-  const { genres, loading: genresLoading, refetch: refetchGenres } = useGenres();
+  const { genres, loading: genresLoading, addGenre, updateGenre, removeGenre, reorderGenres } =
+    useGenres();
   const { books, addBook, updateBook, removeBook } = useBooks();
   const [loading, setLoading] = useState(true);
   const [displayName, setDisplayName] = useState<string>("");
@@ -29,40 +33,65 @@ export default function AppHome() {
     ? books.find((b) => b.id === selectedBook.id) ?? selectedBook
     : null;
   const toastTimerRef = useRef<number | null>(null);
-  
+  const totalGenrePages = Math.max(1, Math.ceil(genres.length / GENRES_PER_BOOKSHELF));
+  const paginatedGenres = useMemo(
+    () =>
+      genres.slice(
+        genrePage * GENRES_PER_BOOKSHELF,
+        genrePage * GENRES_PER_BOOKSHELF + GENRES_PER_BOOKSHELF
+      ),
+    [genrePage, genres]
+  );
+  const visibleGenres = useMemo(
+    () =>
+      genres.length === 0
+        ? []
+        : [
+            ...paginatedGenres,
+            ...Array.from(
+              { length: Math.max(0, GENRES_PER_BOOKSHELF - paginatedGenres.length) },
+              (_, index) => ({
+                id: `placeholder-${genrePage}-${index}`,
+                name: "",
+                sort_order: 1000 + index,
+              })
+            ),
+          ],
+    [genrePage, genres.length, paginatedGenres]
+  );
 
-useEffect(() => {
-  let ignore = false;
+  useEffect(() => {
+    let ignore = false;
 
-  async function init() {
-    // ✅ More reliable than getSession right after login
-    const { data, error } = await supabase.auth.getUser();
+    async function init() {
+      // More reliable than getSession right after login.
+      const { data, error } = await supabase.auth.getUser();
 
-    if (ignore) return;
+      if (ignore) return;
 
-    if (error || !data.user) {
-      router.replace("/login");
-      return;
+      if (error || !data.user) {
+        router.replace("/login");
+        return;
+      }
+
+      const metadata = data.user.user_metadata as { display_name?: string } | undefined;
+      const name = metadata?.display_name || data.user.email || "Reader";
+
+      setDisplayName(name);
+      setLoading(false);
     }
 
-    const metadata = data.user.user_metadata as { display_name?: string } | undefined;
-    const name = metadata?.display_name || data.user.email || "Reader";
+    init();
 
-    setDisplayName(name);
-    setLoading(false);
-  }
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) router.replace("/login");
+    });
 
-  init();
-
-  const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-    if (!session) router.replace("/login");
-  });
-
-  return () => {
-    ignore = true;
-    sub.subscription.unsubscribe();
-  };
-}, [router]);
+    return () => {
+      ignore = true;
+      sub.subscription.unsubscribe();
+    };
+  }, [router]);
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -101,6 +130,10 @@ useEffect(() => {
     };
   }, []);
 
+  useEffect(() => {
+    setGenrePage((prev) => Math.min(prev, totalGenrePages - 1));
+  }, [totalGenrePages]);
+
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-neutral-950 text-neutral-200">
@@ -108,30 +141,6 @@ useEffect(() => {
       </main>
     );
   }
-
-    async function seedGenres() {
-    const defaults = [
-        { name: "Fantasy", sort_order: 1 },
-        { name: "Non-Fiction", sort_order: 2 },
-        { name: "Sci-Fi", sort_order: 3 },
-        { name: "Romance", sort_order: 4 },
-    ];
-
-    const { data: sessionData } = await supabase.auth.getSession();
-    const userId = sessionData.session?.user.id;
-
-    console.log("User ID:", userId);
-
-    if (!userId) return;
-
-    const payload = defaults.map((g) => ({ ...g, user_id: userId }));
-
-    const { data, error } = await supabase.from("genres").insert(payload);
-
-    console.log("Insert result:", { data, error });
-
-    if (!error) await refetchGenres();
-    }
 
   return (
     <RoomLayout
@@ -142,6 +151,15 @@ useEffect(() => {
           displayName={displayName}
           theme={theme}
           onThemeToggle={() => setTheme((prev) => (prev === "warm" ? "dark" : "warm"))}
+          onManageGenres={() => setGenreModalOpen((prev) => !prev)}
+          genreMenuOpen={genreModalOpen}
+          genres={genres}
+          onAddGenre={addGenre}
+          onUpdateGenre={updateGenre}
+          onDeleteGenre={async (genre) => {
+            await removeGenre(genre.id);
+          }}
+          onReorderGenres={reorderGenres}
           onAddBook={() => setAddOpen(true)}
           onSignOut={signOut}
         />
@@ -155,29 +173,53 @@ useEffect(() => {
                 <div>
                 <p className="text-neutral-400 mb-3">No shelves yet.</p>
                 <button
-                    onClick={seedGenres}
+                    onClick={() => setGenreModalOpen(true)}
                     className="rounded-lg border border-neutral-700 px-3 py-2 text-sm hover:border-neutral-400"
                 >
-                    Create my shelves (seed genres)
+                    Manage genres
                 </button>
                 </div>
             ) : (
                 <>
-                <BookshelfWall
-                  genres={genres}
-                  books={books}
-                  selectedBookId={selectedBook?.id ?? null}
-                  onSelectBook={(b) =>
-                    setSelectedBook((prev) => (prev?.id === b.id ? null : b))
-                  }
-                  onEditBook={(book) => {
-                    setSelectedBook(book);
-                    setEditOpen(true);
-                  }}
-                  onRemoveBook={handleRemoveBook}
-                  isRemovingBookId={removingBookId}
-                  theme={theme === "dark" ? "dark" : "light"}
-                />
+                <div className="relative">
+                  {totalGenrePages > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setGenrePage((prev) => Math.max(0, prev - 1))}
+                      disabled={genrePage === 0}
+                      className="absolute left-[-32px] top-1/2 z-20 h-11 w-11 -translate-y-1/2 rounded-full border border-neutral-700 bg-neutral-950/70 text-xl text-neutral-200 backdrop-blur disabled:opacity-35"
+                      aria-label="Previous shelf page"
+                    >
+                      ‹
+                    </button>
+                  )}
+                  <BookshelfWall
+                    genres={visibleGenres}
+                    books={books}
+                    selectedBookId={selectedBook?.id ?? null}
+                    onSelectBook={(b) =>
+                      setSelectedBook((prev) => (prev?.id === b.id ? null : b))
+                    }
+                    onEditBook={(book) => {
+                      setSelectedBook(book);
+                      setEditOpen(true);
+                    }}
+                    onRemoveBook={handleRemoveBook}
+                    isRemovingBookId={removingBookId}
+                    theme={theme === "dark" ? "dark" : "light"}
+                  />
+                  {totalGenrePages > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setGenrePage((prev) => Math.min(totalGenrePages - 1, prev + 1))}
+                      disabled={genrePage === totalGenrePages - 1}
+                      className="absolute right-[-32px] top-1/2 z-20 h-11 w-11 -translate-y-1/2 rounded-full border border-neutral-700 bg-neutral-950/70 text-xl text-neutral-200 backdrop-blur disabled:opacity-35"
+                      aria-label="Next shelf page"
+                    >
+                      ›
+                    </button>
+                  )}
+                </div>
                 </>
             )}
         </section>

@@ -158,12 +158,14 @@ function ShelfPlank({
           borderRadius: 3,
         }}
       >
-        <div
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-medium uppercase tracking-widest"
-          style={{ color: t.plankText }}
-        >
-          {genreName}
-        </div>
+        {genreName ? (
+          <div
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-medium uppercase tracking-widest"
+            style={{ color: t.plankText }}
+          >
+            {genreName}
+          </div>
+        ) : null}
       </div>
 
       {/* Plank underside shadow */}
@@ -464,6 +466,7 @@ export function BookshelfWall({
 
         <div className="relative flex flex-col gap-0">
           {genres.map((g) => {
+            const isPlaceholderShelf = g.name.trim().length === 0;
             const shelfBooks = books
               .filter((b) => b.genre_id === g.id)
               .sort((a, b) => a.shelf_index - b.shelf_index);
@@ -490,14 +493,14 @@ export function BookshelfWall({
                     style={{ paddingLeft: 36, paddingRight: 36 }}
                   >
                     <div className="flex flex-wrap items-end gap-1 overflow-visible pb-0">
-                      {shelfBooks.length === 0 ? (
+                      {shelfBooks.length === 0 && !isPlaceholderShelf ? (
                         <div
                           className="w-full py-6 text-center text-xs tracking-wide"
                           style={{ color: t.emptyText }}
                         >
                           — empty —
                         </div>
-                      ) : (
+                      ) : shelfBooks.length > 0 ? (
                         shelfBooks.map((b) => (
                           <BookSpine
                             key={b.id}
@@ -510,12 +513,13 @@ export function BookshelfWall({
                             isRemovingBookId={isRemovingBookId}
                           />
                         ))
-                      )}
+                      ) : null
+                    }
                     </div>
                   </div>
                 </div>
 
-                <ShelfPlank genreName={g.name} theme={theme} t={t} />
+                <ShelfPlank genreName={isPlaceholderShelf ? "" : g.name} theme={theme} t={t} />
               </div>
             );
           })}

@@ -434,9 +434,9 @@ function SceneShelf({
 }
 
 function SceneLamp({
-  isWarm, t, prefersReduced, floorInsetFromBottom,
+  isWarm, prefersReduced, floorInsetFromBottom,
 }: {
-  isWarm: boolean; t: Tokens; prefersReduced: boolean | null; floorInsetFromBottom: string;
+  isWarm: boolean; prefersReduced: boolean | null; floorInsetFromBottom: string;
 }) {
   const shadeColor = isWarm ? "#775f35ff" : "#eca64aff";
   const glowBg = isWarm
@@ -565,7 +565,7 @@ export default function RoomLayout({
           <PlantSmall leaf={t.leaf} pot={t.pot} base={t.base} />
         </div>
 
-        <SceneLamp isWarm={isWarm} t={t} prefersReduced={prefersReduced} floorInsetFromBottom={floorInsetFromBottom} />
+        <SceneLamp isWarm={isWarm} prefersReduced={prefersReduced} floorInsetFromBottom={floorInsetFromBottom} />
 
         {/* Cat shadow */}
         <div

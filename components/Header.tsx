@@ -1,12 +1,22 @@
 "use client";
 
+import { useRef } from "react";
+import { GenreManagerModal } from "@/components/GenreManagerModal";
 import type { RoomTheme } from "@/components/RoomLayout";
+import type { Genre } from "@/features/library/useGenres";
 
 interface HeaderProps {
   displayName: string;
   theme: RoomTheme;
   onThemeToggle: () => void;
   onAddBook: () => void;
+  onManageGenres: () => void;
+  genreMenuOpen?: boolean;
+  genres: Genre[];
+  onAddGenre: (name: string) => Promise<void>;
+  onUpdateGenre: (id: string, name: string) => Promise<void>;
+  onDeleteGenre: (genre: Genre) => Promise<void>;
+  onReorderGenres: (orderedIds: string[]) => Promise<void>;
   onSignOut: () => void;
 }
 
@@ -15,9 +25,17 @@ export function Header({
   theme,
   onThemeToggle,
   onAddBook,
+  onManageGenres,
+  genreMenuOpen = false,
+  genres,
+  onAddGenre,
+  onUpdateGenre,
+  onDeleteGenre,
+  onReorderGenres,
   onSignOut,
 }: HeaderProps) {
   const isWarm = theme === "warm";
+  const genreButtonRef = useRef<HTMLButtonElement | null>(null);
 
   return (
     <header
@@ -52,6 +70,38 @@ export function Header({
         >
           <span aria-hidden>{isWarm ? "☀" : "☾"}</span>
         </button>
+
+        <button
+          ref={genreButtonRef}
+          type="button"
+          onClick={onManageGenres}
+          className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition"
+          style={{
+            borderColor: `rgba(255,255,255,${isWarm ? ".22" : ".12"})`,
+            color: isWarm ? "rgba(60,30,5,.78)" : "rgba(232,221,208,.78)",
+            background: `rgba(255,255,255,${isWarm ? ".16" : ".08"})`,
+          }}
+        >
+          <span>Genres</span>
+          <span
+            aria-hidden
+            className="inline-block text-[11px] transition-transform duration-200"
+            style={{ transform: genreMenuOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+          >
+            ▾
+          </span>
+        </button>
+
+        <GenreManagerModal
+          open={genreMenuOpen}
+          onClose={onManageGenres}
+          anchorRef={genreButtonRef}
+          genres={genres}
+          onAdd={onAddGenre}
+          onUpdate={onUpdateGenre}
+          onDelete={onDeleteGenre}
+          onReorder={onReorderGenres}
+        />
 
         <button
           type="button"
