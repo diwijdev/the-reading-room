@@ -378,10 +378,6 @@ export function GenreManagerModal({
           exit={{ opacity: 0, y: -8, scale: 0.98 }}
           transition={{ duration: 0.18, ease: "easeOut" }}
         >
-          <div
-            className="absolute top-[-8px] h-4 w-4 rotate-45 border-l border-t border-neutral-800 bg-neutral-900/96"
-            style={{ left: pointerLeft }}
-          />
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900/96 p-5 shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop-blur">
             <div className="flex items-center justify-between">
               <div>
